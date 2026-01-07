@@ -1,0 +1,10 @@
+__pycache__/
+datasets/
+data/
+*.pth
+*.pt
+*.ckpt
+checkpoints/
+saved_models/
+.vscode/
+.idea/
