@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from torch.utils.data import Dataset, DataLoader
 
-class RetrievalTool():
+class RetrievalTool(nn.Module):
     def __init__(
         self,
         seq_len,
@@ -20,6 +20,7 @@ class RetrievalTool():
         with_dec=False,
         return_key=False,
     ):
+        super().__init__()
         period_num = [16, 8, 4, 2, 1]
         period_num = period_num[-1 * n_period:]
         
@@ -35,6 +36,9 @@ class RetrievalTool():
         
         self.with_dec = with_dec
         self.return_key = return_key
+
+        # Linear layer to replace Pearson correlation
+        self.similarity_linear = nn.Linear(seq_len * channels, seq_len * channels)
         
     def prepare_dataset(self, train_data):
         train_data_all = []
@@ -87,7 +91,8 @@ class RetrievalTool():
         _, bsz, features = key.shape
         _, train_len, _ = data_all.shape
         
-        bx = key - torch.mean(key, dim=2, keepdim=True)
+        # bx = key - torch.mean(key, dim=2, keepdim=True)
+        bx = self.similarity_linear(key)
         
         iters = math.ceil(train_len / in_bsz)
         
@@ -97,7 +102,8 @@ class RetrievalTool():
             end_idx = min((i + 1) * in_bsz, train_len)
             
             cur_data = data_all[:, start_idx:end_idx].to(key.device)
-            ax = cur_data - torch.mean(cur_data, dim=2, keepdim=True)
+            # ax = cur_data - torch.mean(cur_data, dim=2, keepdim=True)
+            ax = self.similarity_linear(cur_data)
             
             cur_sim = torch.bmm(F.normalize(bx, dim=2), F.normalize(ax, dim=2).transpose(-1, -2))
             sim.append(cur_sim)

@@ -55,23 +55,23 @@ class Model(nn.Module):
     def prepare_dataset(self, train_data, valid_data, test_data):
         self.rt.prepare_dataset(train_data)
         
-        self.retrieval_dict = {}
+        # self.retrieval_dict = {}
         
-        print('Doing Train Retrieval')
-        train_rt = self.rt.retrieve_all(train_data, train=True, device=self.device)
+        # print('Doing Train Retrieval')
+        # train_rt = self.rt.retrieve_all(train_data, train=True, device=self.device)
 
-        print('Doing Valid Retrieval')
-        valid_rt = self.rt.retrieve_all(valid_data, train=False, device=self.device)
+        # print('Doing Valid Retrieval')
+        # valid_rt = self.rt.retrieve_all(valid_data, train=False, device=self.device)
 
-        print('Doing Test Retrieval')
-        test_rt = self.rt.retrieve_all(test_data, train=False, device=self.device)
+        # print('Doing Test Retrieval')
+        # test_rt = self.rt.retrieve_all(test_data, train=False, device=self.device)
 
-        del self.rt
-        torch.cuda.empty_cache()
+        # del self.rt
+        # torch.cuda.empty_cache()
             
-        self.retrieval_dict['train'] = train_rt.detach()
-        self.retrieval_dict['valid'] = valid_rt.detach()
-        self.retrieval_dict['test'] = test_rt.detach()
+        # self.retrieval_dict['train'] = train_rt.detach()
+        # self.retrieval_dict['valid'] = valid_rt.detach()
+        # self.retrieval_dict['test'] = test_rt.detach()
 
     def encoder(self, x, index, mode):
         index = index.to(self.device)
@@ -84,8 +84,9 @@ class Model(nn.Module):
 
         x_pred_from_x = self.linear_x(x_norm.permute(0, 2, 1)).permute(0, 2, 1) # B, P, C
         
-        pred_from_retrieval = self.retrieval_dict[mode][:, index.cpu()] # G, B, P, C
-        pred_from_retrieval = pred_from_retrieval.to(self.device)
+        # pred_from_retrieval = self.retrieval_dict[mode][:, index.cpu()] # G, B, P, C
+        # pred_from_retrieval = pred_from_retrieval.to(self.device)
+        pred_from_retrieval = self.rt.retrieve(x, index, train=(mode=='train'))
         
         retrieval_pred_list = []
         
