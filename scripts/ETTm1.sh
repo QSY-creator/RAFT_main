@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=0
+exporcd ..t CUDA_VISIBLE_DEVICES=0
 
 seq_len=720
 model_name=RAFT

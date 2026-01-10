@@ -1,5 +1,5 @@
 export CUDA_VISIBLE_DEVICES=0
-
+cd ..
 seq_len=720
 model_name=RAFT
 
