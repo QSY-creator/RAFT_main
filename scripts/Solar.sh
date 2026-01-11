@@ -8,8 +8,8 @@ do
     python -u run.py \
       --task_name long_term_forecast \
       --is_training 1 \
-      --root_path ./data/forecasting \
-      --data_path solar_AL.txt \
+      --root_path ./data/ltfdata \
+      --data_path Solar.csv \
       --model_id Solar_$seq_len_$pred_len \
       --model $model_name \
       --data custom \

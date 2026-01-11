@@ -8,7 +8,7 @@ do
     python -u run.py \
       --task_name long_term_forecast \
       --is_training 1 \
-      --root_path ./data/forecasting \
+      --root_path ./data/ltfdata \
       --data_path national_illness.csv \
       --model_id Illness_$seq_len_$pred_len \
       --model $model_name \
