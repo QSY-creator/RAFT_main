@@ -1,3 +1,54 @@
 long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl96_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
 mse:0.3867633640766144, mae:0.4136413633823395, dtw:-999
 
+long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl192_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
+mse:0.42250731587409973, mae:0.43062978982925415, dtw:-999
+
+long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl336_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
+mse:0.45575687289237976, mae:0.444562166929245, dtw:-999
+
+long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl720_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
+mse:0.4634990990161896, mae:0.46382778882980347, dtw:-999
+
+long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl720_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
+mse:0.4634990990161896, mae:0.46382778882980347, dtw:-999
+
+long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl720_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
+mse:0.4634990990161896, mae:0.46382778882980347, dtw:-999
+
+long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl96_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
+mse:0.3876497745513916, mae:0.41314321756362915, dtw:-999
+
+long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl196_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
+mse:0.4270036518573761, mae:0.43214043974876404, dtw:-999
+
+long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl336_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
+mse:0.4587424099445343, mae:0.445255309343338, dtw:-999
+
+long_term_forecast_temp_RAFT_ETTh1_ftM_sl96_ll48_pl720_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_test_0  
+mse:0.464236855506897, mae:0.4630461633205414, dtw:-999
+
+long_term_forecast_ETTh1_96_RAFT_ETTh1_ftM_sl720_ll48_pl96_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.37890294194221497, mae:0.41199859976768494, dtw:-999
+
+long_term_forecast_ETTh1_192_RAFT_ETTh1_ftM_sl720_ll48_pl192_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.40907275676727295, mae:0.42883798480033875, dtw:-999
+
+long_term_forecast_ETTh1_336_RAFT_ETTh1_ftM_sl720_ll48_pl336_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.4377768337726593, mae:0.44571802020072937, dtw:-999
+
+long_term_forecast_ETTh1_720_RAFT_ETTh1_ftM_sl720_ll48_pl720_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.4673364460468292, mae:0.4769195020198822, dtw:-999
+
+long_term_forecast_ETTh1_96_RAFT_ETTh1_ftM_sl720_ll48_pl96_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.37774115800857544, mae:0.411065936088562, dtw:-999
+
+long_term_forecast_ETTh1_192_RAFT_ETTh1_ftM_sl720_ll48_pl192_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.4104093611240387, mae:0.42888790369033813, dtw:-999
+
+long_term_forecast_ETTh1_336_RAFT_ETTh1_ftM_sl720_ll48_pl336_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.438968688249588, mae:0.44568297266960144, dtw:-999
+
+long_term_forecast_ETTh1_720_RAFT_ETTh1_ftM_sl720_ll48_pl720_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:0.4677491784095764, mae:0.4766013026237488, dtw:-999
+

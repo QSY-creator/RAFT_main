@@ -8,6 +8,53 @@ from tqdm import tqdm
 
 from torch.utils.data import Dataset, DataLoader
 
+class CrossAttention(nn.Module):
+    def __init__(self, input_dim, d_model=512):
+        super().__init__()
+        self.d_model = d_model
+        
+        self.q_proj = nn.Linear(input_dim, d_model)
+        self.k_proj = nn.Linear(input_dim, d_model)
+        
+    def forward(self, q, k, v):
+        # q: (B, S, C)
+        # k: (B, topm, S, C)
+        # v: (B, topm, P, C)
+        
+        B, S, C = q.shape
+        _, topm, _, _ = k.shape
+        
+        # Embed Q
+        q_emb = self.q_proj(q) # (B, S, d)
+        
+        # Embed K
+        k_emb = self.k_proj(k) # (B, topm, S, d)
+        k_emb_flat = k_emb.view(B, topm * S, self.d_model) # (B, topm*S, d)
+        
+        # Calculate Attention
+        # (B, S, d) @ (B, d, topm*S) -> (B, S, topm*S)
+        attn_scores = torch.bmm(q_emb, k_emb_flat.transpose(1, 2))
+        attn_scores = attn_scores / math.sqrt(self.d_model)
+        
+        # Softmax over all keys
+        attn_weights = F.softmax(attn_scores, dim=-1) # (B, S, topm*S)
+        
+        # Reshape to isolate neighbors
+        attn_weights = attn_weights.view(B, S, topm, S)
+        
+        # Calculate neighbor weights
+        # Sum over query time (S) and key time (S)
+        neighbor_weights = attn_weights.sum(dim=-1).sum(dim=1) # (B, topm)
+        
+        # Normalize
+        neighbor_weights = F.softmax(neighbor_weights, dim=1)
+        
+        # Aggregate V
+        # (B, topm, 1, 1) * (B, topm, P, C) -> (B, topm, P, C) -> Sum dim 1 -> (B, P, C)
+        output = torch.sum(neighbor_weights.unsqueeze(-1).unsqueeze(-1) * v, dim=1)
+        
+        return output
+
 class RetrievalTool(nn.Module):
     def __init__(
         self,
@@ -19,6 +66,7 @@ class RetrievalTool(nn.Module):
         topm=20,
         with_dec=False,
         return_key=False,
+        d_model=512,
     ):
         super().__init__()
         period_num = [16, 8, 4, 2, 1]
@@ -39,6 +87,9 @@ class RetrievalTool(nn.Module):
 
         # Linear layer to replace Pearson correlation
         self.similarity_linear = nn.Linear(seq_len * channels, seq_len * channels)
+        
+        # Cross Attention Module
+        self.cross_attention = CrossAttention(channels, d_model=d_model)
         
     def prepare_dataset(self, train_data):
         train_data_all = []
@@ -120,6 +171,7 @@ class RetrievalTool(nn.Module):
         
         x_mg, mg_offset = self.decompose_mg(x) # G, B, S, C
 
+        # 1. Calculate Similarity and find Top-M
         sim = self.periodic_batch_corr(
             self.train_data_all_mg.flatten(start_dim=2), # G, T, S * C
             x_mg.flatten(start_dim=2), # G, B, S * C
@@ -140,25 +192,54 @@ class RetrievalTool(nn.Module):
             sim = sim.masked_fill_(self_mask.bool(), float('-inf')) # G, B, T
 
         sim = sim.reshape(self.n_period * bsz, self.n_train) # G X B, T
-                
-        topm_index = torch.topk(sim, self.topm, dim=1).indices
-        ranking_sim = torch.ones_like(sim) * float('-inf')
+        topm_index = torch.topk(sim, self.topm, dim=1).indices # (G*B, topm)
         
-        rows = torch.arange(sim.size(0)).unsqueeze(-1).to(sim.device)
-        ranking_sim[rows, topm_index] = sim[rows, topm_index]
+        # 2. Cross Attention Fusion
+        pred_list = []
         
-        sim = sim.reshape(self.n_period, bsz, self.n_train) # G, B, T
-        ranking_sim = ranking_sim.reshape(self.n_period, bsz, self.n_train) # G, B, T
-
-        data_len, seq_len, channels = self.train_data_all.shape
+        # Reshape topm_index to (G, B, topm)
+        topm_index = topm_index.reshape(self.n_period, bsz, self.topm)
+        
+        for i in range(self.n_period):
+            # For each granularity
             
-        ranking_prob = F.softmax(ranking_sim / self.temperature, dim=2)
-        ranking_prob = ranking_prob.detach().cpu() # G, B, T
-        
-        y_data_all = self.y_data_all_mg.flatten(start_dim=2) # G, T, P * C
-        
-        pred_from_retrieval = torch.bmm(ranking_prob, y_data_all).reshape(self.n_period, bsz, -1, channels)
-        pred_from_retrieval = pred_from_retrieval.to(x.device)
+            # Prepare Data
+            # x_mg[i]: (B, S, C) -> Query
+            q = x_mg[i]
+            
+            # Indices for this granularity: (B, topm)
+            indices = topm_index[i] # (B, topm)
+            
+            # Gather K (History) and V (Future)
+            # train_data_all_mg[i]: (T, S, C)
+            # y_data_all_mg[i]: (T, P, C)
+            
+            # We need to gather (B, topm, S, C) from (T, S, C)
+            # train_data_all_mg is on CPU usually (from prepare_dataset)
+            # But we should move relevant parts to GPU
+            
+            k_source = self.train_data_all_mg[i].to(x.device) # (T, S, C)
+            v_source = self.y_data_all_mg[i].to(x.device) # (T, P, C)
+            
+            # Expand indices for gather? 
+            # indices is (B, topm)
+            # We want k: (B, topm, S, C)
+            # k = k_source[indices] works if indices matches first dim.
+            
+            k = k_source[indices] # (B, topm, S, C)
+            v = v_source[indices] # (B, topm, P, C)
+            
+            # Apply Cross Attention
+            # q: (B, S, C)
+            # k: (B, topm, S, C)
+            # v: (B, topm, P, C)
+            # output: (B, P, C)
+            out = self.cross_attention(q, k, v)
+            
+            pred_list.append(out)
+            
+        # Stack results: (G, B, P, C)
+        pred_from_retrieval = torch.stack(pred_list, dim=0)
         
         return pred_from_retrieval
     

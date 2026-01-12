@@ -30,6 +30,7 @@ class Model(nn.Module):
         
         self.n_period = configs.n_period
         self.topm = configs.topm
+        self.d_model = configs.d_model
         
         self.rt = RetrievalTool(
             seq_len=self.seq_len,
@@ -37,6 +38,7 @@ class Model(nn.Module):
             channels=self.channels,
             n_period=self.n_period,
             topm=self.topm,
+            d_model=self.d_model,
         )
         
         self.period_num = self.rt.period_num[-1 * self.n_period:]
