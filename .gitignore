@@ -8,3 +8,6 @@ checkpoints/
 saved_models/
 .vscode/
 .idea/
+results/
+test_results/
+
